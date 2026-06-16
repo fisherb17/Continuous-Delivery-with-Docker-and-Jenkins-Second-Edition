@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
 	     image 'gradle:jdk17'
-	     args '-v /var/run/docker.sock:/var/run/docker.sock'
+	     args '-v /var/run/docker.sock:/var/run/docker.sock --entrypoint='
 	}
     }
     stages {
@@ -20,6 +20,7 @@ pipeline {
             steps {
                 sh """
                     cd Chapter08/sample1
+		    chmod +x gradlew
                     ./gradlew test
                 """
             }
@@ -28,6 +29,7 @@ pipeline {
             steps {
                 sh """
                     cd Chapter08/sample1
+		    chmod +x gradlew
                     ./gradlew jacocoTestReport
                     ./gradlew jacocoTestCoverageVerification
                 """
@@ -42,6 +44,7 @@ pipeline {
             steps {
                 sh """
                     cd Chapter08/sample1
+		    chmod +x gradlew
                     ./gradlew checkstyleMain
                     ./gradlew checkstyleTest
                 """
