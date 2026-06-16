@@ -1,6 +1,9 @@
 pipeline {
     agent {
-        label 'docker-agent'
+        docker {
+	     image 'gradle:jdk17'
+	     args '-v /var/run/docker.sock:/var/run/docker.sock'
+	}
     }
     stages {
         stage('Checkout code and prepare environment') {
