@@ -38,5 +38,19 @@ pipeline {
                 ])
             }
         }
+	stage('Checkstyle') {
+            steps {
+                sh """
+                    cd Chapter08/sample1
+                    ./gradlew checkstyleMain
+                    ./gradlew checkstyleTest
+                """
+                publishHTML(target: [
+                    reportDir: 'Chapter08/sample1/build/reports/checkstyle',
+                    reportFiles: 'main.html',
+                    reportName: "Checkstyle Report"
+                ])
+            }
+        }
     }
 }
