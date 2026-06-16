@@ -21,7 +21,7 @@ pipeline {
                 sh """
                     cd Chapter08/sample1
 		    chmod +x gradlew
-                    gradle test
+                    bash gradlew test
                 """
             }
         }
@@ -30,8 +30,8 @@ pipeline {
                 sh """
                     cd Chapter08/sample1
 		    chmod +x gradlew
-                    gradle jacocoTestReport
-                    gradle jacocoTestCoverageVerification
+                    bash gradlew jacocoTestReport
+                    bash gradlew jacocoTestCoverageVerification
                 """
                 publishHTML(target: [
                     reportDir: 'Chapter08/sample1/build/reports/jacoco/test/html',
@@ -45,8 +45,8 @@ pipeline {
                 sh """
                     cd Chapter08/sample1
 		    chmod +x gradlew
-                    gradle checkstyleMain
-                    gradle checkstyleTest
+                    bash gradlew checkstyleMain
+                    bash gradlew checkstyleTest
                 """
                 publishHTML(target: [
                     reportDir: 'Chapter08/sample1/build/reports/checkstyle',
