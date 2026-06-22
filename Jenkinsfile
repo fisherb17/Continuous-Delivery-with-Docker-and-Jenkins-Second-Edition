@@ -1,15 +1,16 @@
 pipeline {
     agent {
         docker {
-	     image 'gradle:jdk17'
-	     args '-v /var/run/docker.sock:/var/run/docker.sock --entrypoint='
-	}
+            image 'gradle:jdk17'
+            args '-v /var/run/docker.sock:/var/run/docker.sock --entrypoint='
+        }
+    }
+    triggers {
+        pollSCM('* * * * *')
     }
     stages {
-        stage('Checkout code and prepare environment') {
+        stage('Prepare environment') {
             steps {
-                git url: 'https://github.com/fisherb17/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git',
-                    branch: 'master'
                 sh """
                     cd Chapter08/sample1
                     chmod +x gradlew
@@ -20,16 +21,19 @@ pipeline {
             steps {
                 sh """
                     cd Chapter08/sample1
-		    chmod +x gradlew
+                    chmod +x gradlew
                     bash gradlew test
                 """
             }
         }
         stage('Code coverage') {
+            when {
+                changeset '**/*.java'
+            }
             steps {
                 sh """
                     cd Chapter08/sample1
-		    chmod +x gradlew
+                    chmod +x gradlew
                     bash gradlew jacocoTestReport
                     bash gradlew jacocoTestCoverageVerification
                 """
@@ -40,11 +44,14 @@ pipeline {
                 ])
             }
         }
-	stage('Checkstyle') {
+        stage('Checkstyle') {
+            when {
+                changeset '**/*.java'
+            }
             steps {
                 sh """
                     cd Chapter08/sample1
-		    chmod +x gradlew
+                    chmod +x gradlew
                     bash gradlew checkstyleMain
                     bash gradlew checkstyleTest
                 """
@@ -54,6 +61,14 @@ pipeline {
                     reportName: "Checkstyle Report"
                 ])
             }
+        }
+    }
+    post {
+        success {
+            echo 'pipeline ran perfectly'
+        }
+        failure {
+            echo 'pipeline failure'
         }
     }
 }
