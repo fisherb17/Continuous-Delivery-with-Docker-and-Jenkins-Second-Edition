@@ -4,7 +4,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 /** calculator service providing basic arithmetic operations */
-/** conditional test for exercise 5 */
+/** adding another comment to trigger pipeline */
+>>>>>>> c0c479f (change to java file to test changeset conditional)
 @Service
 public class Calculator {
         final static int umlNUMBER1 = 3;
