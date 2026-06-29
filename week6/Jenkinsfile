@@ -1,0 +1,67 @@
+pipeline {
+    agent { label 'docker-agent' }
+
+    stages {
+        stage('Validate branch') {
+            steps {
+                script {
+                    def branchName = env.BRANCH_NAME ?: 'unknown'
+                    echo "Building branch: ${branchName}"
+                    def isMain    = (branchName == 'main' || branchName == 'master')
+                    def isFeature = branchName.contains('feature')
+                    if (!isMain && !isFeature) {
+                        error("Branch '${branchName}' is not allowed. Must be 'main', 'master', or contain the word 'feature'.")
+                    }
+                }
+            }
+        }
+        stage('Prepare environment') {
+            steps {
+                sh """
+                    cd Chapter08/sample1
+                    chmod +x gradlew
+                """
+            }
+        }
+        stage('Run tests') {
+            steps {
+                sh """
+                    cd Chapter08/sample1
+                    bash gradlew test
+                """
+            }
+        }
+        stage('Checkstyle') {
+            steps {
+                sh """
+                    cd Chapter08/sample1
+                    bash gradlew checkstyleMain
+                    bash gradlew checkstyleTest
+                """
+            }
+        }
+        stage('Code coverage') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'master'
+                }
+            }
+            steps {
+                sh """
+                    cd Chapter08/sample1
+                    bash gradlew jacocoTestReport
+                    bash gradlew jacocoTestCoverageVerification
+                """
+            }
+        }
+    }
+    post {
+        success {
+            echo 'pipeline ran perfectly'
+        }
+        failure {
+            echo 'pipeline failure'
+        }
+    }
+}
