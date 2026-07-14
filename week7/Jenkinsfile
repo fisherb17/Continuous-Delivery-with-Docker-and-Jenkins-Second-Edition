@@ -1,0 +1,63 @@
+pipeline {
+    agent { label 'docker-agent' }
+
+    stages {
+        stage('Prepare environment') {
+            steps {
+                sh """
+                    cd Chapter08/sample1
+                    chmod +x gradlew
+                """
+            }
+        }
+        stage('Run tests') {
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    sh """
+                        cd Chapter08/sample1
+                        bash gradlew test
+                    """
+                }
+            }
+        }
+        stage('Checkstyle') {
+            steps {
+                sh """
+                    cd Chapter08/sample1
+                    bash gradlew checkstyleMain
+                    bash gradlew checkstyleTest
+                """
+            }
+        }
+        stage('Code coverage') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'master'
+                }
+            }
+            steps {
+                sh """
+                    cd Chapter08/sample1
+                    bash gradlew jacocoTestReport
+                """
+                publishHTML(target: [
+                    reportDir: 'Chapter08/sample1/build/reports/jacoco/test/html',
+                    reportFiles: 'index.html',
+                    reportName: "JaCoCo Report",
+                    keepAll: true,
+                    alwaysLinkToLastBuild: true,
+                    allowMissing: true
+                ])
+            }
+        }
+    }
+    post {
+        success {
+            echo 'tests pass!'
+        }
+        failure {
+            echo 'tests fail!'
+        }
+    }
+}
